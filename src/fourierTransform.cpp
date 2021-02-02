@@ -21,6 +21,21 @@ void DFT(const std::vector<float> &x, std::vector<std::complex<float>> &Xf) {
 	}
 }
 
+void IDFT(const std::vector<std::complex<float>> &X, std::vector<std::complex<float>> &xt) {
+	// allocate space for the vector holding the frequency bins
+	// initialize all the values in the frequency vector to complex 0
+	// xt.resize(X.size(), static_cast<std::vector<float>>(0));
+	xt.resize(X.size(), static_cast<std::complex<float>>(0, 0));
+	// "auto" meyword is used for type deduction (or inference) in C++
+	for (auto k = 0; k < xt.size(); k++) {
+		for (auto m = 0; m < X.size(); m++) {
+				std::complex<float> expval(0, 2*PI*(m*k) / X.size());
+				xt[k] += X[m] * std::exp(expval);
+		}
+		xt[k] /= X.size();
+	}
+}
+
 // function to generate N random float values
 // x is the input/output vector
 // N is the number of samples
@@ -64,6 +79,8 @@ void printComplexlVector(const std::vector<std::complex<float>> &X)
 
 int main()
 {
+	std::cout << "In-Lab Experiments\n" << '\n';
+
 	// use initialize the seed for the random number generator using current time
 	int seed = std::time(0x0);
 	std::cout << "Starting from seed " << seed << "\n";
@@ -79,16 +96,44 @@ int main()
 
 	// declare a vector of complex values; no memory is allocated for it
 	std::vector<std::complex<float>> Xf;
+	std::vector<std::complex<float>> xt;
+
 	// perform DFT of x to produce Xf
 	// we measure the execution time using the "chrono" class
 	auto start_time = std::chrono::high_resolution_clock::now();
-	DFT(x, Xf);
+ 	DFT(x, Xf);
+
 	auto stop_time = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> DFT_run_time = stop_time-start_time;
 	// print a vector of complex numbers
 	// printComplexlVector(Xf);
 	std::cout << "DFT ran for " << DFT_run_time.count() << " milliseconds" << "\n";
 
-	// finished!
+	//In-Lab Experiment #1
+	auto start_time2 = std::chrono::high_resolution_clock::now();
+	IDFT(Xf, xt);
+	auto stop_time2 = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> IDFT_run_time = stop_time2-start_time2;
+	std::cout << "IDFT ran for " << IDFT_run_time.count() << " milliseconds" << "\n";
+
+
+
+	//***********************************TAKE HOME EXERCISE #1******************************
+
+	std::cout << "\nTakehome Exercise #1\n" << '\n';
+
+  std::vector<float> samples;
+	std::vector<std::complex<float>> Xf_res;
+	std::vector<std::complex<float>> xt_res;
+	for (auto N = 128; N <= pow(2,14) ; N*=2){
+		generateRandomSamples(samples, N, 10, 2);
+		auto start_times = std::chrono::high_resolution_clock::now();
+		DFT(samples, Xf_res);
+		IDFT(Xf,xt_res);
+		auto stop_times = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double, std::milli> Run_Times = stop_times-start_times;
+		std::cout << "DFT/IDFT for N = " << N << " ran for: " << Run_Times.count() << " milliseconds" << "\n";
+	}
+
 	return 0;
 }

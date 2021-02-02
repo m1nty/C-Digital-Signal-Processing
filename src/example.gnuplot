@@ -27,7 +27,8 @@ set ylabel 'Spectrum'                    # set y-axis label
 set xlabel 'Frequency bin'               # set x-axis label for all plots
 set yrange [0:3]                         # set y plot range
 set xrange [0:255]                       # set x plot range
-plot '../data/example.dat' using 1:7 with lines lt 1 lw 3 lc rgb '#888888' notitle,\
+plot '../data/example.dat' every ::0::127 using 1:7 with lines lt 1 lw 3 lc rgb '#888888' notitle,\
      '../data/example.dat' using 1:8 with lines lt 1 lw 3 lc rgb '#DD00DD' notitle
+
 
 unset multiplot

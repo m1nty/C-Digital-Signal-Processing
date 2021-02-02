@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
 	# input binary file name (from where samples are read into Python)
 	# the default is JUST a SELF-CHECK; of course, change filenames as needed
-	in_fname = "../data/float32samples.bin"
+	in_fname = "../data/float32filtered.bin" #CHANGE NAME DEPENDING ON C++ FILE
 	# in_fname = "../data/float32filtered.bin"
 	# read data from a binary file (assuming 32-bit floats)
 	float_data = np.fromfile(in_fname, dtype='float32')
