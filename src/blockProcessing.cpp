@@ -55,39 +55,42 @@ std::vector<float> slice(std::vector<float>arr,int low, int high)
     return result;
 }
 
-void convolveBlock(float *y, const std::vector<float> &x, const std::vector<float> h, int block_size)
+void blockConvolution(float *y, const std::vector<float> &x, const std::vector<float> h, std::vector<float> &state_in)
 {
-	// allocate memory for the output (filtered) data
 	int M = x.size();
 	int N = h.size();
-
-	for (auto n = 0 ; n < (M+N-1) ; n++){
-		for (auto k = 0 ; k < (N+1) ; k++){
-
-			if((n-k)>=0 && k<=(N-1) && (n-k)<=(M-1)){
-				y[n] += x[n-k]*h[k];
-			}
-		}
-		if (n==block_size-1){
-			break;
-		}
+	int Z = state_in.size();
+	 for(auto n = 0 ; n < M; n++){
+		 for(auto k = 0 ; k < N; k++){
+			 if (n-k >= 0){
+				 y[n] += x[n-k]*h[k];
+			 }
+			 else{
+				if (abs(n-k) > Z){
+					 y[n] += 0;
+				}
+				else{
+					y[n] += state_in[n-k]*h[k];
+				}
+			 }
+		 }
+		state_in = std::vector<float>(x.begin() + (M-N-1), x.end());
 	}
 }
 
 
 //	blockPass(block_left, audio_left, h, num_taps);
-void blockPass(std::vector<float> &filtered_data, const std::vector<float> &audio_data, const std::vector<float> &h, int block_size)
+void blockPass(std::vector<float> &filtered_data, const std::vector<float> &audio_data, const std::vector<float> &h, int block_size, int num_taps)
 {
 
 	filtered_data.resize(audio_data.size());
 	int position = 0;
 	std::vector<float> audio_block;
+	std::vector<float> state(num_taps-1, 0.0);
 
 	while(true){
-		//Temporary convolution result block
-		//slice(x, 0, 255);
 		audio_block = slice(audio_data,position, position+block_size-1);
-		convolveBlock(&filtered_data[position], audio_block, h, block_size);
+		blockConvolution(&filtered_data[position], audio_block, h, state);
 		position += block_size;
 		if (position > audio_data.size()){
 			break;
@@ -179,6 +182,7 @@ int main()
 	float Fc = 10000.0;	// cutoff frequency (explore ... but up-to Nyquist only!)
 	// number of FIR filter taps (feel free to explore ...)
 	unsigned short int num_taps = 51;
+	unsigned short int block_size = 1024;
 
 	// impulse response (reuse code from the previous experiment)
 	std::vector<float> h;
@@ -206,8 +210,8 @@ int main()
 	//***********************************TAKE HOME EXERCISE #3******************************
 
 	std::vector<float> block_left, block_right;
-	blockPass(block_left, audio_left, h, num_taps);
-	blockPass(block_right, audio_right, h, num_taps);
+	blockPass(block_left, audio_left, h, block_size, num_taps);
+	blockPass(block_right, audio_right, h, block_size, num_taps);
 
 
 	// note: by default the above convolution produces zero on the output stream
