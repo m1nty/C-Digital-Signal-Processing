@@ -67,7 +67,7 @@ void blockConvolution(float *y, const std::vector<float> &x, const std::vector<f
 			 }
 			 else{
 				if (abs(n-k) > Z){
-					 y[n] += 0;
+					 y[n] += 0.0;
 				}
 				else{
 					y[n] += state_in[n-k]*h[k];
@@ -182,7 +182,7 @@ int main()
 	float Fc = 10000.0;	// cutoff frequency (explore ... but up-to Nyquist only!)
 	// number of FIR filter taps (feel free to explore ...)
 	unsigned short int num_taps = 51;
-	unsigned short int block_size = 1024;
+	unsigned short int block_size = 60;
 
 	// impulse response (reuse code from the previous experiment)
 	std::vector<float> h;
